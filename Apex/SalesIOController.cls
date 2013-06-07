@@ -11,9 +11,9 @@ public with sharing class SalesIOController {
 
     public String callNumber { get; set; } 
 
-    private static final String account = 'AC35f2d282dd4389ca0e1b3f60f055bc78';
-    private static final String token = 'f8cb01551e0f91837e3662b2530da39b';
-    private static final String myTwilioNumber = '+14086274694';
+    private static final String account = 'twilioaccountid';
+    private static final String token = 'twilioaccounttoken';
+    private static final String myTwilioNumber = 'twilionumber';
 
    public String userName {
     get
