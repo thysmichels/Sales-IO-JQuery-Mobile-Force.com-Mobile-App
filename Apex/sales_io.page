@@ -1,0 +1,1079 @@
+<apex:page controller="SalesIOController" docType="html-5.0" showHeader="false" sidebar="false">
+    <apex:stylesheet value="{!URLFOR($Resource.JQueryMobile1_3_1, 'css/themes/default/jquery.mobile-1.3.1.min.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.JQueryMobile1_3_1, '_assets/css/jqm-demos.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.MorrisGraph, 'morris.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.JQueryMobile1_3_1, 'js/jquery.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.JQueryMobile1_3_1, '_assets/js/index.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.JQueryMobile1_3_1, 'js/jquery.mobile-1.3.1.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.JQueryMobile1_3_1, 'js/ForceTk.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.MorrisGraph, 'morris.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.MorrisGraph, 'raphael-min.js')}"/>
+    
+    
+    <head>
+        <title>SalesIO</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      
+         <script type="text/javascript">
+            
+            var leadRecs = new Array(); 
+            var contactRecs = new Array();
+            var opportunityRecs = new Array();
+            var accountRecs = new Array();
+            var caseRecs = new Array();
+     
+            var restAPIClient = new forcetk.Client();
+            restAPIClient.setSessionToken('{!$Api.Session_ID}');
+    
+            $j(document).ready(function() {
+                regBtnClickHandlersLead();
+                regBtnClickHandlersContact();
+                regBtnClickHandlersAccount();
+                regBtnClickHandlersOpportunity();
+                regBtnClickHandlersChatter();
+                regBtnClickHandlersEvent();
+                regBtnClickHandlersCases();
+                getAllLeads();
+                getAllContacts();
+                getAllAccounts();
+                getAllOpportunities();
+                getAllCases();
+            });
+            
+
+           function getAllLeads(){
+                $j.mobile.showPageLoadingMsg();
+                var q = "select Id, LastName, FirstName, Phone, MobilePhone, Email, Company, Description, LeadSource, Status, Industry from Lead where FirstName!=null order by FirstName limit 200";
+                restAPIClient.query(q , 
+                            function(response) { 
+                                   showLeads(response.records); 
+                                }); 
+            }
+
+            function getAllContacts(){
+                $j.mobile.showPageLoadingMsg();
+                var q = "select Id, firstName, lastName, phone from Contact where FirstName!=null order by CreatedDate DESC limit 200";
+                restAPIClient.query(q , 
+                            function(response) { 
+                                   showContacts(response.records); 
+                                }); 
+            }
+            
+
+            function getAllAccounts(){
+                $j.mobile.showPageLoadingMsg();
+                var q = "select Id, Name, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, Phone, Fax, Website from Account where Name!=null order by CreatedDate DESC limit 200";
+                restAPIClient.query(q , 
+                            function(response) { 
+                                   showAccounts(response.records); 
+                                }); 
+            }
+
+            function getAllOpportunities(){
+                $j.mobile.showPageLoadingMsg();
+                var q = "select Id, Name, Description, StageName, Amount, Probability, ExpectedRevenue, CloseDate from Opportunity where Name!=null order by CreatedDate DESC limit 200";
+                restAPIClient.query(q , 
+                            function(response) { 
+                                   showOpportunities(response.records); 
+                                }); 
+            }
+            
+            function getAllCases(){
+                $j.mobile.showPageLoadingMsg();
+                var q = "select Id, Status, Reason, Origin, Subject, Description from Case order by CreatedDate DESC limit 200";
+                restAPIClient.query(q , 
+                            function(response) { 
+                                   showCases(response.records); 
+                                }); 
+            }
+
+            function showLeads(records)
+            {
+                 $j('#lList').empty();
+                contactRecs.length = 0;
+                
+                for(var i = 0; i < records.length; i++) { leadRecs[records[i].Id] = records[i]; }
+                var x = 0;
+                $j.each(records,
+                    function() {
+                    var newLi = $j('<li></li>');
+                                
+                    var newLink = $j('<a id="' +this.Id+ '" data-transition="flip">' +this.FirstName+ ' '+this.LastName+ '</a>');
+                    newLink.click(function(e) {
+                        e.preventDefault();
+                        $j.mobile.showPageLoadingMsg();
+                        $j('#lfName').val(leadRecs[this.id].FirstName);
+                        $j('#llName').val(leadRecs[this.id].LastName);
+                        $j('#lphone').val(leadRecs[this.id].Phone);
+                        $j('#lemail').val(leadRecs[this.id].Email);
+                        $j('#lcompany').val(leadRecs[this.id].Company);
+                        $j('#leadId').val(leadRecs[this.id].Id);
+                        $j('#error').html('');
+                       
+                        $j.mobile.changePage('#ldetailpage', {changeHash: true});
+                    });
+                    newLi.append(newLink);            
+                    newLi.appendTo('#lList');
+                    x++;
+                  });
+                
+                $j.mobile.hidePageLoadingMsg();
+                $j('#lList:visible').listview('refresh');
+            }
+           
+            function showContacts(records) {    
+                $j('#cList').empty();
+                contactRecs.length = 0;
+                
+                
+                for(var i = 0; i < records.length; i++) { contactRecs[records[i].Id] = records[i]; }
+                var x = 0;
+                $j.each(records,
+                    function() {
+                    var newLi = $j('<li></li>');
+                                
+                    var newLink = $j('<a id="' +this.Id+ '" data-transition="flip">' +this.FirstName+ ' '+this.LastName+ '</a>');
+                    newLink.click(function(e) {
+                        e.preventDefault();
+                        $j.mobile.showPageLoadingMsg();
+                        $j('#cfName').val(contactRecs[this.id].FirstName);
+                        $j('#clName').val(contactRecs[this.id].LastName);
+                        $j('#cphone').val(contactRecs[this.id].Phone);
+                        $j('#contactId').val(contactRecs[this.id].Id);
+                        $j('#error').html('');
+                       
+                        $j.mobile.changePage('#cdetailpage', {changeHash: true});
+                    });
+                    newLi.append(newLink);            
+                    newLi.appendTo('#cList');
+                    x++;
+                  });
+                
+                $j.mobile.hidePageLoadingMsg();
+                $j('#cList:visible').listview('refresh');
+            } 
+
+             function showAccounts(records)
+            {
+                $j('#aList').empty();
+                contactRecs.length = 0;
+                
+                for(var i = 0; i < records.length; i++) { accountRecs[records[i].Id] = records[i]; }
+                var x = 0;
+                $j.each(records,
+                    function() {
+                    var newLi = $j('<li></li>');
+                                
+                    var newLink = $j('<a id="' +this.Id+ '" data-transition="flip">' +this.Name+ '</a>');
+                    newLink.click(function(e) {
+                        e.preventDefault();
+                        $j.mobile.showPageLoadingMsg();
+                        $j('#afName').val(accountRecs[this.id].Name);
+                        $j('#aphone').val(accountRecs[this.id].Phone);
+                        $j('#accountId').val(accountRecs[this.id].Id);
+                        $j('#error').html('');
+                       
+                        $j.mobile.changePage('#adetailpage', {changeHash: true});
+                    });
+                    newLi.append(newLink);            
+                    newLi.appendTo('#aList');
+                    x++;
+                  });
+                
+                $j.mobile.hidePageLoadingMsg();
+                $j('#aList:visible').listview('refresh');
+            }     
+
+             function showOpportunities(records)
+            {
+                $j('#oList').empty();
+                contactRecs.length = 0;
+                
+                for(var i = 0; i < records.length; i++) { opportunityRecs[records[i].Id] = records[i]; }
+                var x = 0;
+                $j.each(records,function() {
+                    var newLi = $j('<li></li>');
+                    var newLink = $j('<a id="' +this.Id+ '" data-transition="flip">' +this.Name+ '</a>');
+                    newLink.click(function(e) {
+                        e.preventDefault();
+                        $j.mobile.showPageLoadingMsg();
+                        $j('#ofName').val(opportunityRecs[this.id].Name);
+                        $j('#ostageName').val(opportunityRecs[this.id].StageName);
+                        $j('#oamount').val(opportunityRecs[this.id].Amount);
+                        $j('#oclosedate').val(opportunityRecs[this.id].CloseDate);
+                        $j('#opportunityId').val(opportunityRecs[this.id].Id);
+                        $j('#error').html('');
+                       
+                        $j.mobile.changePage('#odetailpage', {changeHash: true});
+                    });
+                    newLi.append(newLink);            
+                    newLi.appendTo('#oList');
+                    x++;
+                  });
+                
+                $j.mobile.hidePageLoadingMsg();
+                $j('#oList:visible').listview('refresh');
+            }
+
+             function showCases(records)
+            {
+                $j('#csList').empty();
+                contactRecs.length = 0;
+                
+                for(var i = 0; i < records.length; i++) { caseRecs[records[i].Id] = records[i]; }
+                var x = 0;
+                $j.each(records,
+                    function() {
+                    var newLi = $j('<li></li>');
+                                
+                    var newLink = $j('<a id="' +this.Id+ '" data-transition="flip">' +this.Subject + '</a>');
+                    newLink.click(function(e) {
+                        e.preventDefault();
+                        $j.mobile.showPageLoadingMsg();
+                        $j('#csStatus').val(caseRecs[this.id].Status);
+                        $j('#csReason').val(caseRecs[this.id].Reason);
+                        $j('#csOrigin').val(caseRecs[this.id].Origin);
+                        $j('#csSubject').val(caseRecs[this.id].Subject);
+                        $j('#csDescription').val(caseRecs[this.id].Description);
+                        $j('#caseId').val(caseRecs[this.id].Id);
+                        $j('#error').html('');
+                       
+                        $j.mobile.changePage('#csdetailpage', {changeHash: true});
+                    });
+                    newLi.append(newLink);            
+                    newLi.appendTo('#csList');
+                    x++;
+                  });
+                
+                $j.mobile.hidePageLoadingMsg();
+                $j('#csList:visible').listview('refresh');
+            }
+
+            function displayError(e){
+                var error = JSON.parse(e.responseText);
+                $j('#error').html(error[0].message);
+            }
+
+            function regBtnClickHandlersLead() {
+                $j('#addlead').click(function(e) {
+                    e.preventDefault();
+                    $j.mobile.showPageLoadingMsg();
+                    $j('#lfName').val('');
+                    $j('#llName').val('');
+                    $j('#lphone').val('');
+                    $j('#lemail').val('');
+                    $j('#lcompany').val('');
+                    $j('#error').html('');
+                    $j('#leadId').val('');
+                    $j.mobile.changePage('#ldetailpage', {changeHash: true});
+                    $j.mobile.hidePageLoadingMsg();            
+                });
+        
+                $j('#savelead').click(function(e) {
+                   addUpdateLead(e);
+                });
+        
+                $j('#deletelead').click(function(e) {
+                   deleteLead(e);
+                });
+            }
+           
+            function addUpdateLead(e){
+                e.preventDefault();
+                var lId = $j('#leadId').val();
+                var lead = { FirstName : $j('#lfName').val(),
+                                LastName : $j('#llName').val(),
+                                Phone : $j('#lphone').val(),
+                                Email : $j('#lemail').val(),
+                                Company : $j('#lcompany').val()};
+                if (lId === 'undefined' || lId === ''){
+                    restAPIClient.create('Lead', lead, sucessCallbackLead, displayError); 
+                } else {
+                    restAPIClient.update('Lead', lId, lead, sucessCallbackLead, displayError); 
+                }
+            }
+        
+            function deleteLead(e){
+                e.preventDefault();
+                restAPIClient.del('Lead', $j('#leadId').val(), sucessCallbackLead, displayError);
+            }
+            
+            function sucessCallbackLead(r){
+                $j.mobile.changePage('#Lead', {changeHash: true});
+            }
+
+             function regBtnClickHandlersContact() {
+                $j('#addcontact').click(function(e) {
+                    e.preventDefault();
+                    $j.mobile.showPageLoadingMsg();
+                    $j('#cfName').val('');
+                    $j('#clName').val('');
+                    $j('#cphone').val('');
+                    $j('#error').html('');
+                    $j('#contactId').val('');
+                    $j.mobile.changePage('#cdetailpage', {changeHash: true});
+                    $j.mobile.hidePageLoadingMsg();            
+                });
+        
+                $j('#savecontact').click(function(e) {
+                   addUpdateContact(e);
+                });
+        
+                $j('#deletecontact').click(function(e) {
+                   deleteContact(e);
+                });
+            }
+          
+             function addUpdateContact(e){
+                e.preventDefault();
+                var cId = $j('#contactId').val();
+                var contact = { FirstName : $j('#cfName').val(),
+                                LastName : $j('#clName').val(),
+                                Phone : $j('#cphone').val()};
+                if (cId === 'undefined' || cId === ''){
+                    restAPIClient.create('Contact', contact, sucessCallbackContact, displayError); 
+                } else {
+                    restAPIClient.update('Contact', cId, contact, sucessCallbackContact, displayError); 
+                }
+            }
+        
+            function deleteContact(e){
+                e.preventDefault();
+                restAPIClient.del('Contact', $j('#contactId').val(), sucessCallbackContact, displayError);
+            }
+
+            function sucessCallbackContact(r){
+                $j.mobile.changePage('#Contact', {changeHash: true});
+            }
+
+             function regBtnClickHandlersAccount() {
+                $j('#addaccount').click(function(e) {
+                    e.preventDefault();
+                    $j.mobile.showPageLoadingMsg();
+                    $j('#afName').val('');
+                    $j('#aphone').val('');
+                    $j('#error').html('');
+                    $j('#accountId').val('');
+                    $j.mobile.changePage('#adetailpage', {changeHash: true});
+                    $j.mobile.hidePageLoadingMsg();            
+                });
+        
+                $j('#saveaccount').click(function(e) {
+                   addUpdateAccount(e);
+                });
+        
+                $j('#deleteaccount').click(function(e) {
+                   deleteAccount(e);
+                });
+            }
+
+            function addUpdateAccount(e){
+                e.preventDefault();
+                var aId = $j('#accountId').val();
+                var account = { Name : $j('#afName').val(),
+                                Phone : $j('#aphone').val()};
+                if (aId === 'undefined' || aId === ''){
+                    restAPIClient.create('Account', account, sucessCallbackAccount, displayError); 
+                } else {
+                    restAPIClient.update('Account', aId, account, sucessCallbackAccount, displayError); 
+                }
+            }
+        
+            function deleteAccount(e){
+                e.preventDefault();
+                restAPIClient.del('Account', $j('#accountId').val(), sucessCallbackAccount, displayError);
+            }
+
+            function sucessCallbackAccount(r){
+                $j.mobile.changePage('#Account', {changeHash: true});
+            }
+     
+            function regBtnClickHandlersOpportunity() {
+                $j('#addopportunity').click(function(e) {
+                    e.preventDefault();
+                    $j.mobile.showPageLoadingMsg();
+                    $j('#ofName').val('');
+                    $j('#ostageName').val('');
+                    $j('#oclosedate').val('');
+                    $j('#oamount').val('');
+                    $j('#error').html('');
+                    $j('#opportunityId').val('');
+                    $j.mobile.changePage('#odetailpage', {changeHash: true});
+                    $j.mobile.hidePageLoadingMsg();            
+                });
+        
+                $j('#saveopportunity').click(function(e) {
+                   addUpdateOpportunity(e);
+                });
+        
+                $j('#deleteopportunity').click(function(e) {
+                   deleteOpportunity(e);
+                });
+            }
+
+             function addUpdateOpportunity(e){
+                e.preventDefault();
+                var oId = $j('#opportunityId').val();
+                var opportunity = { Name : $j('#ofName').val(),
+                                StageName : $j('#ostageName').val(),
+                                CloseDate : $j('#oclosedate').val(),
+                                Amount : $j('#oamount').val()};
+                if (oId === 'undefined' || oId === ''){
+                    restAPIClient.create('Opportunity', opportunity, sucessCallbackOpportunity, displayError); 
+                } else {
+                    restAPIClient.update('Opportunity', oId, opportunity, sucessCallbackOpportunity, displayError); 
+                }
+            }
+        
+            function deleteOpportunity(e){
+                e.preventDefault();
+                restAPIClient.del('Opportunity', $j('#opportunityId').val(), sucessCallbackOpportunity, displayError);
+            }
+
+            function sucessCallbackOpportunity(r){
+                $j.mobile.changePage('#Opportunity', {changeHash: true});
+            }
+
+             function regBtnClickHandlersCases() {
+                $j('#addcase').click(function(e) {
+                    e.preventDefault();
+                    $j.mobile.showPageLoadingMsg();
+                    $j('#csStatus').val('');
+                    $j('#csReason').val('');
+                    $j('#csOrigin').val('');
+                    $j('#csSubject').val('');
+                    $j('#csDescription').val('');
+                    $j('#error').html('');
+                    $j('#caseId').val('');
+                    $j.mobile.changePage('#csdetailpage', {changeHash: true});
+                    $j.mobile.hidePageLoadingMsg();            
+                });
+        
+                $j('#savecase').click(function(e) {
+                   addUpdateCase(e);
+                });
+        
+                $j('#deletecase').click(function(e) {
+                   deleteCase(e);
+                });
+            }
+
+             function addUpdateCase(e){
+                e.preventDefault();
+                var csId = $j('#caseId').val();
+                var caseObj = {    Status : $j('#csStatus').val(),
+                                Reason : $j('#csReason').val(),
+                                Origin : $j('#csOrigin').val(),
+                                Subject : $j('#csSubject').val(),
+                                Description : $j('#csDescription').val()};
+                if (csId === 'undefined' || csId === ''){
+                    restAPIClient.create('Case', caseObj, sucessCallbackCase, displayError); 
+                } else {
+                    restAPIClient.update('Case', csId, caseObj, sucessCallbackCase, displayError); 
+                }
+            }
+        
+            function deleteCase(e){
+                e.preventDefault();
+                restAPIClient.del('Case', $j('#caseId').val(), sucessCallbackCase, displayError);
+            }
+            
+            function sucessCallbackCase(r){
+                $j.mobile.changePage('#Case', {changeHash: true});
+            }
+
+
+            function regBtnClickHandlersChatter() {
+    
+                $j('#savechatter').click(function(e) {
+                   addChatter(e);
+                });
+            }
+
+            function addChatter(e){
+                e.preventDefault();
+                var chatter = { title : $j('#chattertitle').val(),
+                                body : $j('#chatterbody').val(),
+                                ParentId : $j('#cwhoId').val()};
+                restAPIClient.create('FeedItem', chatter, sucessCallbackLead, displayError); 
+            }
+
+            function emailFunction()
+            {
+                sendMail();
+            }
+
+            function smsFunction()
+            {
+                sendSMS();
+            }
+
+            function regBtnClickHandlersEvent() {
+                $j('#saveevent').click(function(e) {
+                   addUpdateEvent(e);
+                });
+            }
+
+             function addUpdateEvent(e){
+                e.preventDefault();
+                var event = { WhoId : $j('#ewhoId').val(),
+                                Subject : $j('#esubject').val(),
+                                StartDateTime : $j('#estartdatetime').val(),
+                                EndDateTime : $j('#eenddatetime').val(),
+                                Description : $j('#edescription').val()};
+              
+                restAPIClient.create('Event', event, sucessCallbackLead, displayError); 
+            }
+
+            function regBtnClickHandlersTask() {
+                $j('#savetask').click(function(e) {
+                   addUpdateTask(e);
+                });
+            }
+
+             function addUpdateTask(e){
+                e.preventDefault();
+                var task =     { WhoId : $j('#twhoId').val(),
+                                Subject : $j('#tsubject').val(),
+                                Priority : $j('#tpriority').val(),
+                                Status : $j('#tstatus').val(),
+                                Description : $j('#tcomments').val()};
+              
+                restAPIClient.create('Task', task, sucessCallbackLead, displayError); 
+            }
+                     
+        </script>    
+    </head>
+
+    <body>
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Lead">
+    <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO"/></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+    </div><!-- /header -->
+    <div data-role="content" class="jqm-content" id="leadList">
+          <ul data-role="listview" data-inset="true" data-filter="true" data-theme="d" data-divider-theme="d" data-icon="false" data-filter-placeholder="Search leads..." data-global-nav="demos" class="jqm-list" id="lList">
+            
+          </ul>
+    </div><!-- /content -->
+    <c:SalesIOMenu />
+     <div data-role="footer" data-id="foo1" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a id="addlead" data-prefetch="true" data-transition="none" data-icon="grid" class="ui-btn-active ui-state-persist">New</a></li>
+            </ul>
+        </div><!-- /navbar -->
+    </div><!-- /footer -->
+    </div><!-- /page -->
+
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="ldetailpage">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+        
+        <div data-role="content" class="jqm-content">
+
+                <div data-role="fieldcontain">
+                    <label for="lfName">First Name:</label>
+                    <input name="lfName" id="lfName" />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="llName">Last Name:</label>
+                    <input name="llName" id="llName" />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="lcompany">Company:</label>
+                    <input name="lcompany" id="lcompany"/>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="lphone">Phone:</label>
+                    <input name="lphone" id="lphone"/>
+                </div>
+                 <div data-role="fieldcontain">
+                    <label for="lemail">Email:</label>
+                    <input name="lemail" id="lemail"/>
+                </div>
+
+                <h2 style="color:red" id="error"></h2><br/>
+                <input type="hidden" id="leadId" />
+                <button id="savelead" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Save</button>
+                <button id="deletelead" data-role="button" data-icon="delete" data-inline="true" class="destroy">Delete</button>
+            </div>
+          <c:SalesIOMenu />
+        <c:SalesIOFooterMenu />
+    </div>
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Contact">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+        <div data-role="content" class="jqm-content" id="contactList">
+            <ul data-role="listview" data-inset="true" data-filter="true" data-theme="d" data-divider-theme="d" data-icon="false" data-filter-placeholder="Search contacts..." data-global-nav="demos" class="jqm-list" id="cList">
+            
+            </ul>
+         </div><!-- /content -->
+       
+          <c:SalesIOMenu />
+
+        <div data-role="footer" data-id="foo1" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a id="addcontact" data-prefetch="true" data-transition="none" data-icon="grid" class="ui-btn-active ui-state-persist">New</a></li>
+            </ul>
+        </div><!-- /navbar -->
+    </div><!-- /footer -->
+    </div>
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="cdetailpage">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+        
+        <div data-role="content" class="jqm-content">
+
+                <div data-role="fieldcontain">
+                    <label for="cfName">First Name:</label>
+                    <input name="cfName" id="cfName" />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="clName">Last Name:</label>
+                    <input name="clName" id="clName" />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="cphone">Phone:</label>
+                    <input name="cphone" id="cphone"/>
+                </div>
+                <h2 style="color:red" id="error"></h2><br/>
+                <input type="hidden" id="contactId" />
+                <button id="savecontact" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Save</button>
+                <button id="deletecontact" data-role="button" data-icon="delete" data-inline="true" class="destroy">Delete</button>
+            </div>
+           <c:SalesIOMenu />
+           <c:SalesIOFooterMenu />
+    </div>
+    
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Account">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+        <div data-role="content" class="jqm-content" id="accountList">
+            <ul data-role="listview" data-inset="true" data-filter="true" data-theme="d" data-divider-theme="d" data-icon="false" data-filter-placeholder="Search accounts..." data-global-nav="demos" class="jqm-list" id="aList">
+            
+            </ul>
+         </div><!-- /content -->
+       
+          <c:SalesIOMenu />
+
+        <div data-role="footer" data-id="foo1" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a id="addaccount" data-prefetch="true" data-transition="none" data-icon="grid" class="ui-btn-active ui-state-persist">New</a></li>
+            </ul>
+        </div><!-- /navbar -->
+    </div><!-- /footer -->
+
+    </div>
+    
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="adetailpage">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+        
+        <div data-role="content" class="jqm-content">
+
+                <div data-role="fieldcontain">
+                    <label for="afName">First Name:</label>
+                    <input name="afName" id="afName" />
+                </div>
+               
+                <div data-role="fieldcontain">
+                    <label for="aphone">Phone:</label>
+                    <input name="aphone" id="aphone"/>
+                </div>
+                <h2 style="color:red" id="error"></h2><br/>
+                <input type="hidden" id="accountId" />
+                <button id="saveaccount" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Save</button>
+                <button id="deleteaccount" data-role="button" data-icon="delete" data-inline="true" class="destroy">Delete</button>
+            </div>
+          <c:SalesIOMenu />
+    </div>
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Opportunity">
+    <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO"/></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+    </div><!-- /header -->
+    <div data-role="content" class="jqm-content" id="opportunityList">
+          <ul data-role="listview" data-inset="true" data-filter="true" data-theme="d" data-divider-theme="d" data-icon="false" data-filter-placeholder="Search leads..." data-global-nav="demos" class="jqm-list" id="oList">
+            
+          </ul>
+    </div><!-- /content -->
+    <c:SalesIOMenu />
+     <div data-role="footer" data-id="foo1" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a id="addopportunity" data-prefetch="true" data-transition="none" data-icon="grid" class="ui-btn-active ui-state-persist">New</a></li>
+            </ul>
+        </div><!-- /navbar -->
+    </div><!-- /footer -->
+    </div><!-- /page -->
+   
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="odetailpage">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+        
+        <div data-role="content" class="jqm-content">
+                <div data-role="fieldcontain">
+                    <label for="ofName">Name:</label>
+                    <input name="ofName" id="ofName" />
+                </div>
+               
+                <div data-role="fieldcontain">
+                    <label for="ostageName">Stage Name:</label>
+                     <select name="ostageName" id="ostageName">
+                        <option value="Closed Won">Closed Won</option>
+                        <option value="Prospecting">Prospecting</option>
+                        <option value="Qualification">Qualification</option>
+                        <option value="Closed Lost">Closed Lost</option>
+                    </select>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <label for="oclosedate">Close Date:</label>
+                    <input name="oclosedate" id="oclosedate" type="date" data-role="datebox" data-options='{"mode": "calbox"}'/>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <label for="oamount">Amount:</label>
+                    <input name="oamount" id="oamount"/>
+                </div>
+
+                <h2 style="color:red" id="error"></h2><br/>
+                <input type="hidden" id="opportunityId" />
+                <button id="saveopportunity" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Save</button>
+                <button id="deleteopportunity" data-role="button" data-icon="delete" data-inline="true" class="destroy">Delete</button>
+            </div>
+         <c:SalesIOMenu />
+    </div>
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Case">
+    <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO"/></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+    </div><!-- /header -->
+    <div data-role="content" class="jqm-content" id="caseList">
+          <ul data-role="listview" data-inset="true" data-filter="true" data-theme="d" data-divider-theme="d" data-icon="false" data-filter-placeholder="Search cases..." data-global-nav="demos" class="jqm-list" id="csList">
+            
+          </ul>
+    </div><!-- /content -->
+    <c:SalesIOMenu />
+     <div data-role="footer" data-id="foo1" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a id="addcase" data-prefetch="true" data-transition="none" data-icon="grid" class="ui-btn-active ui-state-persist">New</a></li>
+            </ul>
+        </div><!-- /navbar -->
+    </div><!-- /footer -->
+    </div><!-- /page -->
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="csdetailpage">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+        
+        <div data-role="content" class="jqm-content">
+                <div data-role="fieldcontain">
+                    <label for="csStatus">Status:</label>
+                    <input name="csStatus" id="csStatus" />
+                </div>
+
+                <div data-role="fieldcontain">
+                    <label for="csReason">Reason:</label>
+                    <input name="csReason" id="csReason"/>
+                </div>
+
+                 <div data-role="fieldcontain">
+                    <label for="csOrigin">Origin:</label>
+                    <input name="csOrigin" id="csOrigin"/>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <label for="csSubject">Subject:</label>
+                    <input name="csSubject" id="csSubject"/>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <label for="csDescription">Description:</label>
+                    <input name="csDescription" id="csDescription"/>
+                </div>
+
+                <h2 style="color:red" id="error"></h2><br/>
+                <input type="hidden" id="caseId" />
+
+                <button id="savecase" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Save</button>
+                <button id="deletecase" data-role="button" data-icon="delete" data-inline="true" class="destroy">Delete</button>
+            </div>
+         <c:SalesIOMenu />
+    </div>
+
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Chatter">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+         <div data-role="content">
+                
+                <div data-role="fieldcontain">
+                    <label for="chattertitle">Title:</label>
+                    <input name="chattertitle" id="chattertitle"/>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <label for="chatterbody">Body:</label>
+                    <textarea rows="5" name="chatterbody" id="chatterbody"/>
+                </div>
+
+                <input type="hidden" id="cwhoId" name="cwhoId" value="{!userId}"></input>
+
+                <h2 style="color:red" id="error"></h2><br/>
+                <button id="savechatter" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Save</button>
+        </div>
+          <c:SalesIOMenu />
+
+           <div data-role="footer" data-id="foo1" data-position="fixed">
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#NewChatter" data-prefetch="true" data-transition="none" class="ui-btn-active ui-state-persist">New</a></li>
+                        <li><a href="#ViewChatter" data-prefetch="true" data-transition="none">View</a></li>
+                    </ul>
+                </div><!-- /navbar -->
+            </div><!-- /footer -->
+    </div>
+
+     <div data-role="page" class="jqm-demos jqm-demos-index" id="Email">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+         <div data-role="content">
+        <apex:form >
+                <div data-role="fieldcontain">
+                    <label for="emailAddress">Address:</label>
+                    <input name="emailAddress" id="emailAddress" value="{!emailAddress}"/>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="emailSubject">Title:</label>
+                    <input name="emailSubject" id="emailSubject" value="{!emailSubject}"/>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="emailBody">Body:</label>
+                    <textarea rows="5" name="emailBody" id="emailBody" value="{!emailBody}"/>
+                </div>               
+                <h2 style="color:red" id="error"></h2><br/>
+                <button id="sendemail" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save" onclick="emailFunction();">Send</button>
+                <apex:actionFunction id="emailSendFunction" name="sendMail" action="{!sendMail}" rerender="false">
+                <apex:param name="emailAddress" assignTo="{!emailAddress}" value=""/>
+                <apex:param name="emailBody" assignTo="{!emailBody}" value=""/>
+                <apex:param name="emailSubject" assignTo="{!emailSubject}" value=""/>
+                </apex:actionFunction> 
+
+        </apex:form>
+        </div>
+          <c:SalesIOMenu />  
+    </div>
+
+      <div data-role="page" class="jqm-demos jqm-demos-index" id="SMS">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+         <div data-role="content">
+            <apex:form >  
+                <div data-role="fieldcontain">
+                    <label for="smsNumber">Number:</label>
+                    <input name="smsNumber" id="smsNumber"/>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="smsBody">Body:</label>
+                    <textarea rows="5" name="smsBody" id="smsBody"/>
+                </div>
+                <h2 style="color:red" id="error"></h2><br/>
+                <button id="sendsms" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save" onclick="smsFunction();">Send</button>
+                <apex:actionFunction id="emailSendFunction" name="sendSMS" action="{!sendSMS}" rerender="false">
+                <apex:param name="smsNumber" assignTo="{!smsNumber}" value=""/>
+                <apex:param name="smsBody" assignTo="{!smsBody}" value=""/>
+                </apex:actionFunction> 
+            </apex:form>
+        </div>
+          <c:SalesIOMenu />
+    </div>
+
+     <div data-role="page" class="jqm-demos jqm-demos-index" id="Meeting">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+        </div><!-- /header -->
+         <div data-role="content">
+                <div data-role="fieldcontain">
+                    <label for="esubject">Subject:</label>
+                    <input name="esubject" id="esubject"/>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <label for="estartdatetime">Start Date:</label>
+                    <input type="datetime-local" data-clear-btn="true" value="" name="estartdatetime" id="estartdatetime"/>
+                </div>
+
+                 <div data-role="fieldcontain">
+                    <label for="eenddatetime">End Date:</label>
+                    <input type="datetime-local" data-clear-btn="true" value="" name="eenddatetime" id="eenddatetime"/>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <label for="edescription">Description:</label>
+                    <textarea rows="5" name="edescription" id="edescription"/>
+                </div>
+
+                 <input type="hidden" id="ewhoId" name="ewhoId" value="{!userId}"></input>
+
+                <h2 style="color:red" id="error"></h2><br/>
+                <button id="saveevent" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Save</button>
+        </div>
+          <c:SalesIOMenu />
+    </div>
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Task">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+        </div><!-- /header -->
+         <div data-role="content">
+                <h2 style="color:red" id="error"></h2><br/>
+                <button id="addtask" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Send</button>
+                
+                <input type="hidden" id="twhoId" name="twhoId" value="{!userId}"></input>
+        </div>
+           <c:SalesIOMenu />
+    </div>
+
+     <div data-role="page" class="jqm-demos jqm-demos-index" id="Todo">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+        </div><!-- /header -->
+         <div data-role="content">
+                <form>
+                <fieldset data-role="controlgroup">
+                 <legend>Vertical:</legend>
+                 <input type="checkbox" name="checkbox-v-2a" id="checkbox-v-2a" />
+                 <label for="checkbox-v-2a">One</label>
+                 <input type="checkbox" name="checkbox-v-2b" id="checkbox-v-2b" />
+                 <label for="checkbox-v-2b">Two</label>
+                <input type="checkbox" name="checkbox-v-2c" id="checkbox-v-2c" />
+                <label for="checkbox-v-2c">Three</label>
+                </fieldset>
+                <h2 style="color:red" id="error"></h2><br/>
+                <button id="addtodo" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">Save</button>
+            </form>
+        </div>
+          <c:SalesIOMenu />
+    </div>
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Notes">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+         <div data-role="content">
+         <form>
+        <div data-role="fieldcontain" class="ui-hide-label">
+            <textarea style="height:300px" name="textarea-16" id="textarea-16"></textarea>
+        </div>
+                <h2 style="color:red" id="error"></h2><br/>
+                <button id="addnotes" data-role="button" data-icon="check" data-inline="true" data-theme="b" class="save">SAVE</button>
+        </form>
+        </div>
+          <c:SalesIOMenu />
+    </div>
+
+    <div data-role="page" class="jqm-demos jqm-demos-index" id="Charts">
+        <div data-role="header" class="jqm-header">
+        <h1 class="jqm-logo"><a href="#"><img src="{!URLFOR($Resource.SalesIOLogo, '')}" alt="SalesIO" /></a></h1>
+        <a href="#" class="jqm-navmenu-link" data-icon="bars" data-iconpos="notext">Navigation</a>
+       
+        </div><!-- /header -->
+         <div data-role="content">
+           <div id="myfirstchart" style="width:300px;height:300px;"></div>
+        </div>
+          <c:SalesIOMenu />
+    </div>
+    </body>
+    <div data-role="page" id="modal">
+
+    <div data-role="header" data-theme="e">
+        <h1>Dialog (modal)</h1>
+
+    </div><!-- /header -->
+
+    <div data-role="content" data-theme="d">    
+        <h2>Modal</h2>
+        <p>Content of Modal Goes Here</p>       
+
+    </div><!-- /content -->
+
+
+    <div data-role="footer">
+        <h4>Page Footer</h4>
+    </div><!-- /footer -->
+    </div><!-- /page modal -->
+    
+     <script type="text/javascript">
+      new Morris.Line({
+  // ID of the element in which to draw the chart.
+  element: 'myfirstchart',
+  // Chart data records -- each entry in this array corresponds to a point on
+  // the chart.
+  data: [
+    { year: '2008', value: 20 },
+    { year: '2009', value: 10 },
+    { year: '2010', value: 5 },
+    { year: '2011', value: 5 },
+    { year: '2012', value: 20 }
+  ],
+  // The name of the data record attribute that contains x-values.
+  xkey: 'year',
+  // A list of names of data record attributes that contain y-values.
+  ykeys: ['value'],
+  // Labels for the ykeys -- will be displayed when you hover over the
+  // chart.
+  labels: ['Value']
+});
+     </script>
+
+</apex:page>

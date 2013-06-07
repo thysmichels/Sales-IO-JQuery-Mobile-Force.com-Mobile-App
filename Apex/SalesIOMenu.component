@@ -1,0 +1,26 @@
+<apex:component controller="SalesIOController">
+  <div data-role="panel" class="jqm-nav-panel jqm-navmenu-panel" data-position="left" data-display="reveal" data-theme="c">
+            <ul data-role="listview" data-theme="d" data-divider-theme="d" data-icon="false" data-global-nav="demos" class="jqm-list" id="cSObjects"> 
+                <li data-section="Demo Showcase" data-filtertext="user info page"><a href="#User" data-ajax="true">{!userName}</a></li>
+                <li data-role="list-divider">Sales</li>
+                <li data-section="Demo Showcase" data-filtertext="lead page"><a href="#Lead" data-ajax="true">Lead</a></li>
+                <li data-section="Demo Showcase" data-filtertext="contact page"><a href="#Contact" data-ajax="true">Contact</a></li>
+                <li data-section="Demo Showcase" data-filtertext="account page"><a href="#Account" data-ajax="true">Account</a></li>
+                <li data-section="Demo Showcase" data-filtertext="opportunity page"><a href="#Opportunity" data-ajax="true">Opportunity</a></li>
+                 <li data-role="list-divider">Support</li>
+                 <li data-section="Demo Showcase" data-filtertext="case page"><a href="#Case" data-ajax="true">Case</a></li>
+                <li data-role="list-divider">Visual</li>
+                <li data-section="Demo Showcase" data-filtertext="chatter page"><a href="#Charts" data-ajax="true">Charts</a></li>
+                <li data-role="list-divider">Connect</li>
+                <li data-section="Demo Showcase" data-filtertext="chatter page"><a href="#Chatter" data-ajax="true">Chatter</a></li>
+                <li data-section="Demo Showcase" data-filtertext="email page"><a href="#Email" data-ajax="true">Email</a></li>
+                <li data-section="Demo Showcase" data-filtertext="sms page"><a href="#SMS" data-ajax="true">SMS</a></li>
+                <li data-role="list-divider">Calendar</li>
+                <li data-section="Demo Showcase" data-filtertext="meeting page"><a href="#Meeting" data-ajax="true">Meeting</a></li>
+                <li data-section="Demo Showcase" data-filtertext="task page"><a href="#Task" data-ajax="true">Task</a></li>
+                <li data-role="list-divider">Organize</li>
+                <li data-section="Demo Showcase" data-filtertext="chatter page"><a href="#Todo" data-ajax="true">Todo</a></li>
+                <li data-section="Demo Showcase" data-filtertext="notes page"><a href="#Notes" data-ajax="true">Notes</a></li>
+            </ul>
+    </div><!-- /panel -->    
+</apex:component>

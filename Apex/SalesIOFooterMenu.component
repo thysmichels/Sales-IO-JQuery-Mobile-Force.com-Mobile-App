@@ -1,0 +1,11 @@
+<apex:component >
+  <div data-role="footer" data-id="foo1" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#Call" data-prefetch="true" data-transition="none" class="ui-btn-active ui-state-persist">Call</a></li>
+                <li><a href="#Text" data-prefetch="true" data-transition="none">Text</a></li>
+                <li><a href="#EmailPerson" data-prefetch="true" data-transition="none">Email</a></li>
+            </ul>
+        </div><!-- /navbar -->
+    </div><!-- /footer -->
+</apex:component>
