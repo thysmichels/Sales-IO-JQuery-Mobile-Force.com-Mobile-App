@@ -47,6 +47,5 @@ Organize
 ![ScreenShot](https://github.com/thysmichels/Sales-IO-JQuery-Mobile-Force.com-Mobile-App/raw/master/Screenshots/SalesIO5.png "Main Screen")
 ![ScreenShot](https://github.com/thysmichels/Sales-IO-JQuery-Mobile-Force.com-Mobile-App/raw/master/Screenshots/SalesIO6.png "Main Screen")
 ![ScreenShot](https://github.com/thysmichels/Sales-IO-JQuery-Mobile-Force.com-Mobile-App/raw/master/Screenshots/SalesIO7.png "Main Screen")
-![ScreenShot](https://github.com/thysmichels/Sales-IO-JQuery-Mobile-Force.com-Mobile-App/raw/master/Screenshots/SalesIO8.png "Main Screen")
 ![ScreenShot](https://github.com/thysmichels/Sales-IO-JQuery-Mobile-Force.com-Mobile-App/raw/master/Screenshots/SalesIO3.png "Main Screen")
     
