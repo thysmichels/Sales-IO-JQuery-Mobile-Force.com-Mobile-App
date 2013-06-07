@@ -55,4 +55,28 @@ Screenshots
     
 Getting Started
 ===============
+    
+Clone
 
+    Clone: git clone https://github.com/thysmichels/Sales-IO-JQuery-Mobile-Force.com-Mobile-App.git
+    
+Setup
+
+    Upload Static Resources: JQueryMobile1_3_1.resource, MorrisGraph.resource
+    Create Page: sales_io.page
+    Create Component: SalesIOFooterMenu.component, SalesIOMenu.component
+    Create Controller: SalesIOController.cls
+        
+Setup Twilio
+
+    Install Twilio for Salesforce - https://github.com/twilio/twilio-salesforce
+    Setup twilio account, secret, number in SalesIOController.
+    
+Run 
+
+    https://<instance>.visual.force.com/apex/sales_io
+    
+Reference
+    
+    https://github.com/developerforce/MobilePack-jQueryMobile.git
+    
