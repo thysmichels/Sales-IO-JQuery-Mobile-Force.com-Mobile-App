@@ -79,3 +79,8 @@ Screenshots
 ![ScreenShot](https://github.com/thysmichels/Sales-IO-JQuery-Mobile-Force.com-Mobile-App/raw/master/Screenshots/SalesIO5.png "Main Screen")
 ![ScreenShot](https://github.com/thysmichels/Sales-IO-JQuery-Mobile-Force.com-Mobile-App/raw/master/Screenshots/SalesIO6.png "Main Screen")
     
+New Development
+===============
+
+    Sencha Touch Version
+    Android Version
